@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Agricole Bank | Espace Client International</title> 
+    <style> 
+        /* Styles Globaux & Thème */ 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+        /* En-tête (Header) */ 
+        header { background-color: #0f172a; color: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .logo-banque { font-size: 24px; font-weight: 800; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; }
+        .logo-banque span { color: #10b981; }
+        .header-droite { display: flex; align-items: center; gap: 20px; }
+        .select-langue { background-color: #1e293b; color: #ffffff; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; outline: none; width: auto; }
+        .statut-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; background-color: #1e293b; padding: 8px 16px; border-radius: 20px; color: #10b981; font-weight: 600; }
+        .point-vert { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #10b981; }
+        /* Conteneur Principal */ 
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 5%; }
+        .card { background: #ffffff; border-radius: 16px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05); width: 100%; max-width: 900px; overflow: hidden; }
+        /* ÉCRAN 1 : CONNEXION & CRÉATION DE COMPTE */ 
+        #ecran-authentification { display: flex; min-height: 550px; }
+        .auth-visuel { flex: 1; background: linear-gradient(135deg, #0f172a 0%, #065f46 100%); color: white; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .svg-icon { width: 100px; height: 100px; margin-bottom: 25px; fill: #10b981; filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.2)); }
+        .auth-visuel h3 { font-size: 24px; margin-bottom: 15px; }
+        .auth-visuel p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+        .auth-formulaire { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        .auth-onglets { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .onglet { font-size: 16px; font-weight: 600; color: #94a3b8; cursor: pointer; border: none; background: none; padding-bottom: 10px; position: relative; }
+        .onglet.actif { color: #10b981; }
+        .onglet.actif::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 3px; background-color: #10b981; border-radius: 2px; }
+        .form-groupe { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { width: 100%; padding: 12px 16px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; background-color: #f8fafc; transition: all 0.2s; }
+        input:focus, select:focus { border-color: #10b981; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .btn-primaire { background-color: #10b981; color: white; border: none; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 10px; }
+        .btn-primaire:hover { background-color: #059669; }
+        
+        /* BANNIÈRE DE VALIDATION ADMIN COMPTE */
+        .banniere-autorisation { background-color: #fffbeb; border: 1px solid #fef3c7; border-left: 5px solid #f59e0b; color: #b45309; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-size: 14px; font-weight: 500; }
+        .zone-admin-simul { background-color: #f1f5f9; padding: 20px; border-radius: 8px; text-align: left; margin-top: 25px; border: 1px dashed #cbd5e1; display: none; }
+        
+        /* ÉCRAN 2 : TABLEAU DE BORD & VIREMENT */ 
+        #ecran-dashboard { display: none; padding: 40px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } #ecran-authentification { flex-direction: column; } .header-droite { gap: 10px; } }
+        .carte-solde { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; position: relative; overflow: hidden; }
+        .carte-solde h4 { font-size: 14px; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; }
+        .montant-solde { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+        .historique-titre { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #0f172a; }
+        .liste-transactions { list-style: none; }
+        .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .trans-info h5 { font-size: 14px; color: #1e293b; }
+        .trans-info span { font-size: 12px; color: #64748b; }
+        .trans-montant { font-size: 14px; font-weight: 600; }
+        .trans-montant.negatif { color: #ef4444; } .trans-montant.positif { color: #10b981; }
+        /* ÉCRAN 3 : ANIMATION DE CHARGEMENT PROGRESSIF (60s) */ 
+        #ecran-chargement { display: none; text-align: center; padding: 60px 40px; max-width: 500px; margin: 0 auto; }
+        .spinner { width: 65px; height: 65px; border: 6px solid #f1f5f9; border-top: 6px solid #10b981; border-radius: 50%; margin: 0 auto 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .barre-conteneur { background-color: #e2e8f0; border-radius: 20px; height: 12px; width: 100%; margin: 25px 0; overflow: hidden; }
+        .barre-interne { background-color: #10b981; height: 100%; width: 0%; transition: width 0.4s ease-out; }
+        .pourcentage-texte { font-size: 36px; font-weight: 800; color: #0f172a; }
+        /* ÉCRAN 4 : VALIDATION PAR CODE OTP */ 
+        #ecran-code { display: none; text-align: center; padding: 50px 40px; max-width: 450px; margin: 0 auto; }
+        .input-code { width: 80%; padding: 14px; font-size: 24px; letter-spacing: 8px; text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; margin: 25px 0; font-weight: bold; outline: none; }
+        .input-code:focus { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .info-texte { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        /* ÉCRAN 5 : REÇU DE CONFIRMATION SUCCÈS VERTE */ 
+        #ecran-succes { display: none; text-align: center; padding: 50px 40px; max-width: 550px; margin: 0 auto; }
+        .icon-succes-cadre { width: 100px; height: 100px; background-color: #ecfdf5; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 25px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1); }
+        .svg-handshake { width: 60px; height: 60px; fill: #10b981; }
+        .titre-succes { color: #10b981; font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+        .badge-confiance { background-color: #f1f5f9; color: #475569; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 30px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 30px; }
+        .recap-ticket { background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 30px; }
+        .recap-ligne { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .recap-ligne:last-child { margin-bottom: 0; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+        .recap-label { color: #64748b; }
+        .recap-valeur { font-weight: 600; color: #0f172a; }
+        .recap-valeur.montant-final { color: #10b981; font-size: 18px; font-weight: 700; } 
+    </style>
+</head>
+<body>
+<!-- EN-TÊTE DE LA MARQUE AVEC CONFIGURATION INTERNATIONALE MULTILINGUE -->
+<header> 
+    <a href="#" class="logo-banque"><span>Agricole</span> Bank</a> 
+    <div class="header-droite"> 
+        <!-- Sélecteur de Langues --> 
+        <select class="select-langue" id="select-langue" onchange="changerLangue(this.value)"> 
+            <option value="fr">🇫🇷 Français</option> 
+            <option value="en">🇺🇸 English</option> 
+            <option value="es">🇪🇸 Español</option> 
+            <option value="de">🇩🇪 Deutsch</option> 
+        </select> 
+        <div class="statut-badge"> 
+            <span class="point-vert"></span> 
+            <span id="txt-statut-ssl">Protection SSL Élevée Active</span> 
+        </div> 
+    </div>
+</header>
+
+<main> 
+    <div class="card">
+        <!-- ================= ÉCRAN 1 : ACCUEIL / CONNEXION / INSCRIPTION ================= --> 
+        <div id="ecran-authentification"> 
+            <div class="auth-visuel"> 
+                <svg class="svg-icon" viewBox="0 0 24 24"> 
+                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/> 
+                </svg> 
+                <h3 id="auth-visuel-titre">Votre argent, perfectly sécurisé</h3> 
+                <p id="auth-visuel-texte">Accédez à des virements internationaux instantanés et gérez votre patrimoine en toute simplicité avec l'infrastructure cryptée d'Agricole Bank.</p> 
+            </div> 
+            <div class="auth-formulaire"> 
+                <div class="auth-onglets"> 
+                    <button class="onglet actif" id="tab-connexion" onclick="changerOnglet('connexion')">Se connecter</button> 
+                    <button class="onglet" id="tab-inscription" onclick="changerOnglet('inscription')">Ouvrir un compte</button> 
+                </div>
+                <div id="champs-auth"> 
+                    <!-- Généré dynamiquement par le script multilingue --> 
+                </div>
+                <button class="btn-primaire" id="btn-auth-action" onclick="gererAuthentificationOuInscription()">Accéder à mon espace</button> 
+            </div> 
+        </div>
+
+        <!-- ================= ÉCRAN 2 : ESPACE CLIENT / FORMULAIRE DE VIREMENT ================= --> 
+        <div id="ecran-dashboard"> 
+            
+            <!-- Bannière d'autorisation conditionnelle -->
+            <div class="banniere-autorisation" id="alerte-autorisation">
+                ⚠️ <strong>Compte Suspendu / En attente :</strong> Votre demande d'ouverture de compte agricole est en cours de traitement. L'initiation de virement externe requiert l'autorisation manuelle d'un administrateur de notre réseau.
+            </div>
+
+            <div class="dashboard-grid"> 
+                <div> 
+                    <div class="carte-solde"> 
+                        <h4 id="lbl-solde-dispo">Solde Disponible</h4> 
+                        <div class="montant-solde" id="solde-valeur">0,00 €</div> 
+                        <p id="lbl-compte-num" style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Compte Courant Principal N° 4590-XXXX</p> 
+                    </div>
+                    <h4 class="historique-titre" id="lbl-derniers-ops">Dernières opérations</h4> 
+                    
+                    <ul class="liste-transactions" id="conteneur-transactions-dynamique"> 
+                        <!-- Les transactions s'injectent ici -->
+                    </ul> 
+
+                    <!-- BOUTON VERROUILLÉ POUR L'ADMINISTRATEUR SEUL -->
+                    <button class="btn-primaire" id="btn-appel-admin" style="background-color: #475569; margin-top: 30px; font-size: 13px; padding: 10px;" onclick="ouvrirEspaceAdminSecurise()">🔧 Espace Admin (Contrôle Identité)</button>
+
+                    <!-- PANNEAU ADMINISTRATEUR MASQUÉ (S'OUVRE SEULEMENT AVEC LE CODE 1919) -->
+                    <div id="zone-admin-test" class="zone-admin-simul">
+                        <h4 style="color: #0f172a; font-size: 14px; margin-bottom: 10px; font-weight: 700;">Panneau de Certification & Crédit Émetteur</h4>
+                        <div class="form-groupe">
+                            <label style="font-size: 11px;">Montant à créditer au client :</label>
+                            <input type="number" id="admin-credit-montant" value="5000" style="padding: 8px; font-size: 14px;">
+                        </div>
+                        <button class="btn-primaire" style="background-color: #f59e0b; padding: 10px; font-size: 13px; width: 100%;" onclick="certifierEtCrediterCompteAdmin()">Certifier la création et Créditer le compte</button>
+                    </div>
+                </div>
+                <div> 
+                    <h3 style="margin-bottom: 5px; font-size: 18px;" id="lbl-initier-vir">Initier un nouveau virement</h3> 
+                    <p class="info-texte" style="margin-bottom: 20px;" id="lbl-initier-desc">Transférez vos fonds de manière sécurisée vers n'importe quelle institution financière mondiale.</p> 
+                    <div class="form-groupe"> 
+                        <label id="lbl-field-benef">Bénéficiaire (Nom complet)</label> 
+                        <input type="text" id="vir-nom" placeholder="Ex: Cabinet Technique Durand"> 
+                    </div>
+                    <div class="form-groupe"> 
+                        <label id="lbl-field-iban">IBAN / Numéro de compte destinataire</label> 
+                        <input type="text" id="vir-iban" placeholder="FR76 3000 6000 1234..."> 
+                    </div>
+                    <div class="form-groupe"> 
+                        <label id="lbl-field-montant">Montant de l'envoi</label> 
+                        <div style="position: relative;"> 
+                            <input type="number" id="vir-montant" placeholder="0.00"> 
+                            <span id="symbole-devise-virement" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #64748b;">€</span> 
+                        </div> 
+                    </div>
+                    <button class="btn-primaire" id="btn-confirmer-envoi" onclick="lancerTraitementVirement()">Confirmer et envoyer les fonds</button> 
+                </div>
+            </div> 
+        </div>
+
+        <!-- ================= ÉCRAN 3 : CHARGEMENT DE 0 À 100% ================= --> 
+        <div id="ecran-chargement"> 
+            <div class="spinner"></div> 
+            <div class="pourcentage-texte" id="pourcentage">0%</div> 
+            <div class="barre-conteneur"> 
+                <div class="barre-interne" id="barre-interne"></div> 
+            </div> 
+            <p class="info-texte" id="texte-statut" style="font-weight: 600; color: #0f172a;">Initialisation du tunnel sécurisé...</p> 
+        </div>
+        <!-- ================= ÉCRAN 4 : DEMANDE DE CODE DE SÉCURITÉ INTERNE ================= --> 
+        <div id="ecran-code"> 
+            <svg class="svg-icon" style="fill: #10b981; width: 80px; height: 80px;" viewBox="0 0 24 24"> 
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/> 
+            </svg> 
+            <h2 id="lbl-2fa-titre">Clé Interne d'Autorisation Requise</h2> 
+            <p class="info-texte"><span id="lbl-2fa-desc">Le transfert est suspendu à 99%. Veuillez insérer le code de sécurité obligatoire transmis par votre conseiller pour valider l'envoi de</span> <span id="rappel-montant" style="font-weight: bold; color: #0f172a;">0</span> <span class="devise-recap">€</span>.</p> 
+            <input type="text" class="input-code" id="code-otp" placeholder="XXXXXX" maxlength="6"> 
+            <button class="btn-primaire" id="btn-2fa-valider" onclick="finaliserTransaction()">Valider définitivement l'opération</button> 
+        </div>
+        <!-- ================= ÉCRAN 5 : SUCCÈS ET CONFIRMATION DU TRANSFERT ================= --> 
+        <div id="ecran-succes"> 
+            <div class="icon-succes-cadre"> 
+                <svg class="svg-handshake" viewBox="0 0 24 24"> 
+                    <path d="M22.09 10.12l-2.45-2.45a2.53 2.53 0 0 0-3.58 0l-1.92 1.92-2.31-2.31a2.53 2.53 0 0 0-3.58 0L3.18 12.3a2.53 2.53 0 0 0 0 3.58l2.45 2.45a2.53 2.53 0 0 0 3.58 0l1.92-1.92 2.31 2.31a2.53 2.53 0 0 0 3.58 0l5.07-5.02a2.53 2.53 0 0 0 0-3.58zM8.34 17.45l-4.28-4.27a.76.76 0 0 1 0-1.07l1.07-1.07.54.54a1.26 1.26 0 0 0 1.78 0 1.26 1.26 0 0 0 0-1.78l-.54-.54 1.07-1.07a.76.76 0 0 1 1.07 0l4.28 4.27a.76.76 0 0 1 0 1.07l-4.28 4.27a.77.77 0 0 1-1.07 0zm11.23-4.27l-4.28 4.28a.76.76 0 0 1-1.07 0l-2.31-2.31 1.39-1.39a1.26 1.26 0 0 0 0-1.78 1.26 1.26 0 0 0-1.78 0l-1.39 1.39-1.07-1.07a.76.76 0 0 1 0-1.07l4.28-4.28a.76.76 0 0 1 1.07 0l4.28 4.28a.76.76 0 0 1 0 1.07z"/> 
+                </svg> 
+            </div> 
+            <h2 class="titre-succes" id="lbl-success-titre">Transfert Exécuté avec Succès</h2> 
+            <p class="info-texte" id="lbl-success-desc">Les fonds ont été chiffrés et transmis au réseau de compensation d'Agricole Bank avec succès.</p> 
+            <div class="badge-confiance"> 
+                <span class="point-vert"></span> 
+                <span id="lbl-success-certif">Transaction certifiée et enregistrée de manière irréversible</span> 
+            </div>
+            <div class="recap-ticket"> 
+                <div class="recap-ligne"> <span class="recap-label" id="lbl-rec-benef">Bénéficiaire :</span> <span class="recap-valeur" id="recap-nom">Non spécifié</span> </div> 
+                <div class="recap-ligne"> <span class="recap-label" id="lbl-rec-iban">Numéro de compte / IBAN :</span> <span class="recap-valeur" id="recap-iban">Non spécifié</span> </div> 
+                <div class="recap-ligne"> <span class="recap-label" id="lbl-rec-statut">Statut de livraison :</span> <span class="recap-valeur" style="color: #10b981;" id="lbl-rec-statut-val">En cours d'acheminement</span> </div> 
+                <div class="recap-ligne"> <span class="recap-label" id="lbl-rec-montant">Montant Total Net :</span> <span class="recap-valeur montant-final" id="recap-montant">0,00 €</span> </div> 
+            </div>
+            <button class="btn-primaire" style="background-color: #0f172a;" id="btn-success-dl" onclick="retourTableauDeBord()">Télécharger le reçu officiel</button> 
+        </div>
+    </div>
+</main>
+
+<script> 
+// CONFIGURATION DE TES CODES SECRET ADMINISTRATEUR (Modifiables ici)
+const CODE_SECRET_ADMIN = "1919"; 
+const CODE_SECRET_VIREMENT = "2026";
+
+// Dictionnaire multilingue complet 
+const traductions = { 
+    fr: { ssl: "Protection SSL Élevée Active", authVtitre: "Votre argent, parfaitement sécurisé", authVtexte: "Accédez à des virements internationaux instantanés et gérez votre patrimoine en toute simplicité avec l'infrastructure cryptée d'Agricole Bank.", tabConn: "Se connecter", tabInsc: "Ouvrir un compte", labelUser: "Identifiant Client ou Email", labelPass: "Mot de passe", labelNom: "Nom complet / Raison Sociale", labelMailProf: "Adresse Email Professionnelle", labelPassDef: "Définir un mot de passe sécurisé", labelDevise: "Devise principale du compte", btnEspace: "Accéder à mon espace", btnCompte: "Créer mon compte bancaire", soldeDispo: "Solde Disponible", compteNum: "Compte Courant Principal N° 4590-XXXX", dernOps: "Dernières opérations", initVir: "Initier un nouveau virement", initDesc: "Transférez vos fonds de manière sécurisée vers n'importe quelle institution financière mondiale.", fBenef: "Bénéficiaire (Nom complet)", fIban: "IBAN / Numéro de compte destinataire", fMontant: "Montant de l'envoi", btnEnvoyer: "Confirmer et envoyer les fonds", tLoading1: "Chiffrement des paquets financiers sécurisés...", tLoading2: "Vérification de la conformité internationale anti-fraude...", tLoading3: "Ouverture des canaux interbancaires d'envoi...", tLoading4: "Ajustement final de la liaison de compensation...", tLoadingInit: "Initialisation du tunnel sécurisé...", titre2fa: "Clé Interne d'Autorisation Requise", desc2fa: "Le transfert est suspendu à 99%. Veuillez insérer le code de sécurité obligatoire transmis par votre conseiller pour valider l'envoi de", btn2fa: "Valider définitivement l'opération", titreSucces: "Transfert Exécuté avec Succès", descSucces: "Les fonds ont été chiffrés et transmis au réseau de compensation d'Agricole Bank avec succès.", certifSucces: "Transaction certifiée et enregistrée de manière irréversible", recBenef: "Bénéficiaire :", recIban: "Numéro de compte / IBAN :", recStatut: "Statut de livraison :", recStatutVal: "En cours d'acheminement", recMontant: "Montant Total Net :", btnDl: "Télécharger le reçu officiel", alertMontant: "Veuillez saisir un montant de virement valide.", alertCode: "Code de sécurité non valide. Échec de certification.", alertDl: "Reçu officiel enregistré. Téléchargement lancé en arrière-plan.", nonSpec: "Non spécifié", alertLoginFail: "Identifiant ou mot de passe incorrect. Accès refusé.", alertIncomplete: "Veuillez remplir tous les champs obligatoires.", alertExists: "Un compte existe déjà avec cet identifiant." }, 
+    en: { ssl: "High SSL Protection Active", authVtitre: "Your money, perfectly secured", authVtexte: "Access instant international transfers and manage your wealth with ease using Agricole Bank's encrypted infrastructure.", tabConn: "Log In", tabInsc: "Open an Account", labelUser: "Client ID or Email", labelPass: "Password", labelNom: "Full Name / Company Name", labelMailProf: "Professional Email Address", labelPassDef: "Set a Secure Password", labelDevise: "Primary Account Currency", btnEspace: "Access my space", btnCompte: "Create my bank account", soldeDispo: "Available Balance", compteNum: "Main Current Account No. 4590-XXXX", dernOps: "Recent Transactions", initVir: "Initiate a New Transfer", initDesc: "Transfer your funds securely to any financial institution worldwide.", fBenef: "Beneficiary (Full Name)", fIban: "IBAN / Destination Account Number", fMontant: "Sending Amount", btnEnvoyer: "Confirm and Send Funds", tLoading1: "Encrypting secure financial packets...", tLoading2: "Checking international anti-fraud compliance...", tLoading3: "Opening interbank sending channels...", tLoading4: "Final adjustment of the clearing link...", tLoadingInit: "Initializing secure tunnel...", titre2fa: "Internal Authorization Key Required", desc2fa: "The transfer is suspended at 99%. Please insert the mandatory security code sent by your advisor to validate the sending of", btn2fa: "Definitively Validate Operation", titreSucces: "Transfer Successfully Executed", descSucces: "Funds have been encrypted and transmitted to the Agricole Bank clearing network successfully.", certifSucces: "Transaction certified and irreversibly recorded", recBenef: "Beneficiary:", recIban: "Account Number / IBAN:", recStatut: "Delivery Status:", recStatutVal: "In transit / Processing", recMontant: "Net Total Amount:", btnDl: "Download Official Receipt", alertMontant: "Please enter a valid transfer amount.", alertCode: "Invalid security code. Certification failed.", alertDl: "Official receipt saved. Download started in background.", nonSpec: "Unspecified", alertLoginFail: "Incorrect ID or password. Access denied.", alertIncomplete: "Please fill in all required fields.", alertExists: "An account already exists with this ID." },
+    es: { ssl: "Protección SSL Alta Activa", authVtitre: "Su dinero, perfectamente seguro", authVtexte: "Acceda a transferencias internacionales instantáneas y gestione su patrimonio con facilidad gracias a la infraestructura encriptada de Agricole Bank.", tabConn: "Iniciar Sesión", tabInsc: "Abrir una Cuenta", labelUser: "ID de Cliente o Email", labelPass: "Contraseña", labelNom: "Nombre Completo / Razón Social", labelMailProf: "Dirección de Correo Profesional", labelPassDef: "Definir una Contraseña Segura", labelDevise: "Moneda Principal de la Cuenta", btnEspace: "Acceder a mi espacio", btnCompte: "Crear mi cuenta bancaria", soldeDispo: "Saldo Disponible", compteNum: "Cuenta Corriente Principal N° 4590-XXXX", dernOps: "Últimas Operaciones", initVir: "Iniciar una Nueva Transferencia", initDesc: "Transfiera sus fondos de forma segura a cualquier institución financiera del mundo.", fBenef: "Beneficiario (Nombre completo)", fIban: "IBAN / Número de Cuenta de Destino", fMontant: "Monto de Envío", btnEnvoyer: "Confirmar y Enviar Fondos", tLoading1: "Cifrando paquetes financieros seguros...", tLoading2: "Comprobando el cumplimiento internacional contra el fraude...", tLoading3: "Apertura de canales de envío interbancarios...", tLoading4: "Ajuste final del enlace de compensación...", tLoadingInit: "Inicializando túnel seguro...", titre2fa: "Se requiere clave de autorización interna", desc2fa: "La transferencia está suspendida al 99%. Por favor inserte el código de seguridad obligatorio enviado por su asesor para validar el envío de", btn2fa: "Validar Definitivamente la Operación", titreSucces: "Transferencia Ejecutada con Éxito", descSucces: "Los fondos han sido encriptados y transmitidos a la red de compensación de Agricole Bank con éxito.", certifSucces: "Transacción certificada y registrada de forma irreversible", recBenef: "Beneficiario:", recIban: "Número de cuenta / IBAN:", recStatut: "Estado de entrega:", recStatutVal: "En proceso de envío", recMontant: "Monto Total Neto:", btnDl: "Descargar Recibo Oficial", alertMontant: "Por favor, introduzca un monto de transferencia válido.", alertCode: "Código de seguridad inválido. Error de certificación.", alertDl: "Recibo oficial guardado. Descarga iniciada en segundo plano.", nonSpec: "No especificado", alertLoginFail: "ID o contraseña incorrectos. Acceso denegado.", alertIncomplete: "Por favor complete todos los campos requeridos.", alertExists: "Ya existe una cuenta con este ID." }, 
+    de: { ssl: "Hoher SSL-Schutz Aktiv", authVtitre: "Ihr Geld, perfekt abgesichert", authVtexte: "Nutzen Sie sofortige internationale Überweisungen und verwalten Sie Ihr Vermögen ganz einfach mit der verschlüsselten Infrastruktur der Agricole Bank.", tabConn: "Einloggen", tabInsc: "Konto Eröffnen", labelUser: "Kunden-ID oder E-Mail", labelPass: "Passwort", labelNom: "Vollständiger Name / Firmenname", labelMailProf: "Professionelle E-Mail-Adresse", labelPassDef: "Sicheres Passwort Festlegen", labelDevise: "Hauptwährung des Kontos", btnEspace: "Zugang zu meinem Bereich", btnCompte: "Mein Bankkonto erstellen", soldeDispo: "Verfügbares Guthaben", compteNum: "Hauptgirokonto Nr. 4590-XXXX", dernOps: "Letzte Transaktionen", initVir: "Neue Überweisung Einleiten", initDesc: "Überweisen Sie Ihre Gelder sicher an jedes Finanzinstitut weltweit.", fBenef: "Begünstigter (Vollständiger Name)", fIban: "IBAN / Zielkontonummer", fMontant: "Sendedezimalbetrag", btnEnvoyer: "Bestätigen und Geld Senden", tLoading1: "Verschlüsselung sicherer Finanzpakete...", tLoading2: "Prüfung der internationalen Einhaltung von Betrugsbekämpfung...", tLoading3: "Eröffnung interbankärer Sendekanäle...", tLoading4: "Endabstimmung des Clearing-Links...", tLoadingInit: "Sicherer Tunnel wird initialisiert...", titre2fa: "Interner Autorisierungsschlüssel erforderlich", desc2fa: "Die Überweisung ist zu 99% unterbrochen. Bitte geben Sie den von Ihrem Berater übermittelten obligatorischen Sicherheitscode ein, um das Senden zu bestätigen von", btn2fa: "Vorgang definitiv validieren", titreSucces: "Überweisung erfolgreich ausgeführt", descSucces: "Die Gelder wurden verschlüsselt und erfolgreich an das Clearing-Netzwerk der Agricole Bank übertragen.", certifSucces: "Transaktion zertifiziert und unwiderruflich aufgezeichnet", recBenef: "Begünstigter:", recIban: "Kontonummer / IBAN:", recStatut: "Lieferstatus:", recStatutVal: "Wird geliefert / In Bearbeitung", recMontant: "Netto-Gesamtbetrag:", btnDl: "Offiziellen Beleg herunterladen", alertMontant: "Bitte geben Sie einen gültigen Überweisungsbetrag ein.", alertCode: "Ungültiger Sicherheitscode. Zertifizierung fehlgeschlagen.", alertDl: "Offizieller Beleg gespeichert. Download im Hintergrund gestartet.", nonSpec: "Nicht angegeben", alertLoginFail: "Benutzer-ID oder Passwort falsch. Zugriff verweigert.", alertIncomplete: "Bitte füllen Sie alle Pflichtfelder aus.", alertExists: "Ein Konto mit dieser ID existiert bereits." }
+};
+
+let langueActuelle = 'fr'; 
+let modeActuel = 'connexion';
+let donneesUtilisateurActuel = null;
+let emailUtilisateurActuel = null;
+
+// GESTION DE LA BASE DE DONNÉES LOCALE (LocalStorage)
+function initialiserComptesBancaires() {
+    let comptes = localStorage.getItem('comptesBancairesAgricole');
+    if (!comptes) {
+        // Compte par défaut (Ancien compte pour tester)
+        comptes = [{
+            email: "client9842",
+            pass: "12345678",
+            data: {
+                nom: "Ancien Compte Agricole",
+                solde: "14 850,00",
+                devise: "€",
+                autorise: true,
+                transactions: [
+                    { titre: "Remboursement Facture", date: "Hier, 14:32", montant: "+340,00 €", classe: "positif" },
+                    { titre: "Achat Équipement Professionnel", date: "28 Mai 2026", montant: "-1 200,00 €", classe: "negatif" },
+                    { titre: "Approvisionnement Compte", date: "25 Mai 2026", montant: "+5 000,00 €", classe: "positif" }
+                ]
+            }
+        }];
+        localStorage.setItem('comptesBancairesAgricole', JSON.stringify(comptes));
+    }
+}
+
+function getComptes() {
+    return JSON.parse(localStorage.getItem('comptesBancairesAgricole'));
+}
+
+function saveComptes(comptes) {
+    localStorage.setItem('comptesBancairesAgricole', JSON.stringify(comptes));
+}
+
+function syncUtilisateurActuel() {
+    if (!emailUtilisateurActuel) return;
+    let comptes = getComptes();
+    let index = comptes.findIndex(c => c.email === emailUtilisateurActuel);
+    if(index !== -1) {
+        comptes[index].data = donneesUtilisateurActuel;
+        saveComptes(comptes);
+    }
+}
+
+function changerLangue(lang) { 
+    langueActuelle = lang; const t = traductions[lang];
+    document.getElementById("txt-statut-ssl").innerText = t.ssl;
+    document.getElementById("auth-visuel-titre").innerText = t.authVtitre; 
+    document.getElementById("auth-visuel-texte").innerText = t.authVtexte; 
+    document.getElementById("tab-connexion").innerText = t.tabConn; 
+    document.getElementById("tab-inscription").innerText = t.tabInsc; 
+    
+    changerOnglet(modeActuel);
+    
+    document.getElementById("lbl-solde-dispo").innerText = t.soldeDispo; 
+    document.getElementById("lbl-compte-num").innerText = t.compteNum; 
+    document.getElementById("lbl-derniers-ops").innerText = t.dernOps; 
+    document.getElementById("lbl-initier-vir").innerText = t.initVir; 
+    document.getElementById("lbl-initier-desc").innerText = t.initDesc; 
+    document.getElementById("lbl-field-benef").innerText = t.fBenef; 
+    document.getElementById("lbl-field-iban").innerText = t.fIban; 
+    document.getElementById("lbl-field-montant").innerText = t.fMontant; 
+    document.getElementById("btn-confirmer-envoi").innerText = t.btnEnvoyer;
+    document.getElementById("texte-statut").innerText = t.tLoadingInit;
+    document.getElementById("lbl-2fa-titre").innerText = t.titre2fa; 
+    document.getElementById("lbl-2fa-desc").innerText = t.desc2fa; 
+    document.getElementById("btn-2fa-valider").innerText = t.btn2fa;
+    document.getElementById("lbl-success-titre").innerText = t.titreSucces; 
+    document.getElementById("lbl-success-desc").innerText = t.descSucces; 
+    document.getElementById("lbl-success-certif").innerText = t.certifSucces; 
+    document.getElementById("lbl-rec-benef").innerText = t.recBenef; 
+    document.getElementById("lbl-rec-iban").innerText = t.recIban; 
+    document.getElementById("lbl-rec-statut").innerText = t.recStatut; 
+    document.getElementById("lbl-rec-statut-val").innerText = t.recStatutVal; 
+    document.getElementById("lbl-rec-montant").innerText = t.recMontant; 
+    document.getElementById("btn-success-dl").innerText = t.btnDl; 
+}
+
+function changerOnglet(mode) { 
+    modeActuel = mode; const t = traductions[langueActuelle]; 
+    const tabConnexion = document.getElementById('tab-connexion'); 
+    const tabInscription = document.getElementById('tab-inscription'); 
+    const champsAuth = document.getElementById('champs-auth'); 
+    const btnAction = document.getElementById('btn-auth-action');
+    
+    if (mode === 'connexion') { 
+        tabConnexion.classList.add('actif'); 
+        tabInscription.classList.remove('actif'); 
+        champsAuth.innerHTML = ` 
+            <div class="form-groupe"> 
+                <label>${t.labelUser}</label> 
+                <input type="text" id="auth-user" placeholder="Ex: client9842"> 
+            </div> 
+            <div class="form-groupe"> 
+                <label>${t.labelPass}</label> 
+                <input type="password" id="auth-pass" placeholder="••••••••"> 
+            </div> `; 
+        btnAction.innerText = t.btnEspace; 
+    } else { 
+        tabConnexion.classList.remove('actif'); 
+        tabInscription.classList.add('actif'); 
+        champsAuth.innerHTML = ` 
+            <div class="form-groupe"> 
+                <label>${t.labelNom}</label> 
+                <input type="text" id="inscr-nom" placeholder="Ex: Luc Traoré"> 
+            </div> 
+            <div class="form-groupe"> 
+                <label>${t.labelMailProf}</label> 
+                <input type="email" id="inscr-email" placeholder="Ex: nom@exemple.com"> 
+            </div> 
+            <div class="form-groupe"> 
+                <label>${t.labelPassDef}</label> 
+                <input type="password" id="inscr-pass" placeholder="••••••••"> 
+            </div> 
+            <div class="form-groupe"> 
+                <label>${t.labelDevise}</label> 
+                <select id="inscr-devise"><option value="€">Euro (€)</option><option value="$">Dollar ($)</option></select> 
+            </div> `; 
+        btnAction.innerText = t.btnCompte; 
+    } 
+}
+
+function gererAuthentificationOuInscription() {
+    const t = traductions[langueActuelle];
+
+    if (modeActuel === 'connexion') {
+        const userSaisi = document.getElementById("auth-user").value;
+        const passSaisi = document.getElementById("auth-pass").value;
+        
+        let comptes = getComptes();
+        // Vérification stricte des identifiants
+        let compteTrouve = comptes.find(c => c.email === userSaisi && c.pass === passSaisi);
+
+        if (compteTrouve) {
+            donneesUtilisateurActuel = compteTrouve.data;
+            emailUtilisateurActuel = compteTrouve.email;
+            connexionReussie();
+        } else {
+            alert(t.alertLoginFail); // Refus immédiat si faux
+        }
+
+    } else {
+        const nomSaisi = document.getElementById("inscr-nom").value || "Nouvel Exploitant";
+        const emailSaisi = document.getElementById("inscr-email").value;
+        const passSaisi = document.getElementById("inscr-pass").value;
+        const deviseSaisie = document.getElementById("inscr-devise").value;
+        
+        if(!emailSaisi || !passSaisi) {
+            alert(t.alertIncomplete);
+            return;
+        }
+
+        let comptes = getComptes();
+        // Empêcher la création de doublons
+        if(comptes.find(c => c.email === emailSaisi)) {
+            alert(t.alertExists);
+            return;
+        }
+        
+        donneesUtilisateurActuel = {
+            nom: nomSaisi,
+            solde: "0,00", 
+            devise: deviseSaisie,
+            autorise: false, 
+            transactions: [] 
+        };
+        emailUtilisateurActuel = emailSaisi;
+
+        // Sauvegarde du nouveau compte
+        comptes.push({
+            email: emailSaisi,
+            pass: passSaisi,
+            data: donneesUtilisateurActuel
+        });
+        saveComptes(comptes);
+        
+        alert("Espace client créé. Votre compte est actuellement inactif et non certifié. Veuillez contacter votre gestionnaire réseau.");
+        connexionReussie();
+    }
+}
+
+function connexionReussie() { 
+    document.getElementById("ecran-authentification").style.display = "none"; 
+    document.getElementById("ecran-dashboard").style.display = "block"; 
+    
+    document.getElementById("solde-valeur").innerText = donneesUtilisateurActuel.solde + " " + donneesUtilisateurActuel.devise;
+    document.getElementById("symbole-devise-virement").innerText = donneesUtilisateurActuel.devise;
+    
+    const banniere = document.getElementById("alerte-autorisation");
+    const btnEnvoi = document.getElementById("btn-confirmer-envoi");
+    
+    if (donneesUtilisateurActuel.autorise === false) {
+        banniere.style.display = "block";
+        btnEnvoi.disabled = true;
+        btnEnvoi.style.opacity = "0.4";
+        btnEnvoi.style.cursor = "not-allowed";
+    } else {
+        banniere.style.display = "none";
+        btnEnvoi.disabled = false;
+        btnEnvoi.style.opacity = "1";
+        btnEnvoi.style.cursor = "pointer";
+    }
+
+    const conteneurTrans = document.getElementById("conteneur-transactions-dynamique");
+    conteneurTrans.innerHTML = ""; 
+
+    if (donneesUtilisateurActuel.transactions.length === 0) {
+        conteneurTrans.innerHTML = `<li class="transaction-item" style="color: #64748b; font-style: italic; font-size: 13px;">Aucune opération historique disponible pour ce compte.</li>`;
+    } else {
+        donneesUtilisateurActuel.transactions.forEach(trans => {
+            conteneurTrans.innerHTML += `
+                <li class="transaction-item"> 
+                    <div class="trans-info"> 
+                        <h5>${trans.titre}</h5> 
+                        <span>${trans.date}</span> 
+                    </div> 
+                    <div class="trans-montant ${trans.classe}">${trans.montant}</div> 
+                </li>`;
+        });
+    }
+}
+
+// PROTECTION ADMIN VIA UN CODE IMPÉRATIF PORTEUR
+function ouvrirEspaceAdminSecurise() {
+    const codeSaisi = prompt("🔒 Sécurité Agricole Bank :\nVeuillez saisir votre CODE ADMINISTRATEUR pour déverrouiller ce panneau :");
+    
+    if (codeSaisi === CODE_SECRET_ADMIN) {
+        document.getElementById("zone-admin-test").style.display = "block";
+        alert("Accès accordé, Luc. Le panneau de contrôle est maintenant visible en bas à gauche.");
+    } else {
+        alert("❌ Code incorrect. Accès strictement refusé.");
+    }
+}
+
+// CERTIFICATION PAR L'ADMINISTRATEUR ET CHOIX DU CRÉDIT
+function certifierEtCrediterCompteAdmin() {
+    if (donneesUtilisateurActuel) {
+        const montantChoisi = document.getElementById("admin-credit-montant").value || "0";
+        const montantFormate = parseFloat(montantChoisi).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+        
+        donneesUtilisateurActuel.autorise = true;
+        donneesUtilisateurActuel.solde = montantFormate;
+        
+        // Ajouter la ligne d'approvisionnement dans l'historique propre du client
+        donneesUtilisateurActuel.transactions.unshift({ 
+            titre: "Approvisionnement Compte Certifié", 
+            date: "À l'instant", 
+            montant: `+${montantFormate} ${donneesUtilisateurActuel.devise}`, 
+            classe: "positif" 
+        });
+        
+        // Sauvegarde immédiate dans le LocalStorage
+        syncUtilisateurActuel();
+
+        alert(`✅ Compte certifié avec succès !\nLe solde a été crédité de ${montantFormate} ${donneesUtilisateurActuel.devise}.`);
+        document.getElementById("zone-admin-test").style.display = "none"; // Masquer à nouveau
+        connexionReussie(); 
+    }
+}
+
+function lancerTraitementVirement() { 
+    if(donneesUtilisateurActuel && !donneesUtilisateurActuel.autorise) {
+        alert("Opération Refusée : Votre compte bancaire n'est pas certifié.");
+        return;
+    }
+
+    const t = traductions[langueActuelle]; 
+    const nomInput = document.getElementById("vir-nom").value; 
+    const ibanInput = document.getElementById("vir-iban").value; 
+    const montantInput = document.getElementById("vir-montant").value; 
+    if (!montantInput || montantInput <= 0) { alert(t.alertMontant); return; }
+    
+    const elementsDevise = document.querySelectorAll(".devise-recap");
+    elementsDevise.forEach(el => el.innerText = donneesUtilisateurActuel.devise);
+
+    document.getElementById("rappel-montant").innerText = parseFloat(montantInput).toLocaleString('fr-FR'); 
+    document.getElementById("recap-nom").innerText = nomInput || t.nonSpec; 
+    document.getElementById("recap-iban").innerText = ibanInput || t.nonSpec; 
+    document.getElementById("recap-montant").innerText = parseFloat(montantInput).toLocaleString('fr-FR') + " " + donneesUtilisateurActuel.devise;
+    
+    document.getElementById("ecran-dashboard").style.display = "none"; 
+    document.getElementById("ecran-chargement").style.display = "block";
+    executerProgression60s(); 
+}
+
+function executerProgression60s() { 
+    let pourcentage = 0; const intervalle = 100; // Accéléré pour les tests fluides
+    const textePourcentage = document.getElementById("pourcentage"); 
+    const barreInterne = document.getElementById("barre-interne"); 
+    const texteStatut = document.getElementById("texte-statut");
+    
+    const timer = setInterval(() => { 
+        pourcentage++; const t = traductions[langueActuelle]; 
+        
+        // VERROUILLAGE BLOQUANT À 99%
+        if (pourcentage === 99) {
+            clearInterval(timer);
+            textePourcentage.innerText = "99%"; 
+            barreInterne.style.width = "99%";
+            texteStatut.innerText = "En attente de la signature électronique du porteur réseau...";
+            
+            setTimeout(() => {
+                afficherEcranCode(); // Basculer sur l'écran d'OTP
+            }, 1500);
+            return;
+        }
+
+        textePourcentage.innerText = pourcentage + "%"; 
+        barreInterne.style.width = pourcentage + "%";
+        
+        if (pourcentage === 15) { texteStatut.innerText = t.tLoading1; } 
+        else if (pourcentage === 40) { texteStatut.innerText = t.tLoading2; } 
+        else if (pourcentage === 65) { texteStatut.innerText = t.tLoading3; } 
+        else if (pourcentage === 85) { texteStatut.innerText = t.tLoading4; }
+        
+    }, intervalle); 
+}
+
+function afficherEcranCode() { 
+    document.getElementById("ecran-chargement").style.display = "none"; 
+    document.getElementById("ecran-code").style.display = "block"; 
+}
+
+// VÉRIFICATION STRICTE DU CODE DE VIREMENT PERSONNEL (2026)
+function finaliserTransaction() { 
+    const t = traductions[langueActuelle]; 
+    const codeInput = document.getElementById("code-otp").value; 
+    
+    if (codeInput === CODE_SECRET_VIREMENT) {
+        document.getElementById("ecran-code").style.display = "none"; 
+        document.getElementById("ecran-succes").style.display = "block"; 
+    } else {
+        alert(t.alertCode); // Message d'échec si ce n'est pas le code secret 2026
+    }
+}
+
+function retourTableauDeBord() { 
+    const t = traductions[langueActuelle]; 
+    alert(t.alertDl); location.reload(); 
+}
+
+window.onload = function() { 
+    initialiserComptesBancaires();
+    changerLangue('fr'); 
+};
+</script>
+</body>
+</html>
