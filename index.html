@@ -674,18 +674,105 @@ function finaliserTransaction() {
     const codeInput = document.getElementById("code-otp").value; 
     
     if (codeInput === CODE_SECRET_VIREMENT) {
+        const montantVirement = parseFloat(document.getElementById("vir-montant").value);
+        let soldeActuel = parseFloat(donneesUtilisateurActuel.solde.replace(/\s/g, '').replace(',', '.'));
+        
+        if (montantVirement > soldeActuel) {
+            alert("Fonds insuffisants.");
+            return;
+        }
+
+        let nouveauSolde = soldeActuel - montantVirement;
+        donneesUtilisateurActuel.solde = nouveauSolde.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+        
+        const beneficiaire = document.getElementById("recap-nom").innerText;
+        donneesUtilisateurActuel.transactions.unshift({ 
+            titre: `Virement vers ${beneficiaire}`, 
+            date: "À l'instant", 
+            montant: `-${montantVirement.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${donneesUtilisateurActuel.devise}`, 
+            classe: "negatif" 
+        });
+
+        syncUtilisateurActuel();
         document.getElementById("ecran-code").style.display = "none"; 
         document.getElementById("ecran-succes").style.display = "block"; 
     } else {
-        alert(t.alertCode); // Message d'échec si ce n'est pas le code secret 2026
+        alert(t.alertCode);
     }
 }
+function retourTableauDeBord() {
+    // Récupération des données depuis l'interface
+    const beneficiaire = document.getElementById("recap-nom").innerText;
+    const iban = document.getElementById("recap-iban").innerText;
+    const montant = document.getElementById("recap-montant").innerText;
+    const date = new Date().toLocaleString('fr-FR');
+    
+    // Ouverture de la fenêtre de rendu
+    const fenetreImpression = window.open('', '_blank');
+    
+    fenetreImpression.document.write(`
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, sans-serif; color: #1e293b; padding: 40px; }
+                .container { max-width: 600px; margin: auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 8px; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px; }
+                .logo { font-weight: 800; font-size: 20px; }
+                .logo span { color: #10b981; }
+                .badge { background: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; border: 1px solid #10b981; }
+                .section-title { font-size: 12px; color: #64748b; margin-bottom: 15px; text-transform: uppercase; }
+                .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+                .flex-box { display: flex; gap: 20px; margin: 20px 0; }
+                .box { border: 1px solid #e2e8f0; padding: 15px; flex: 1; border-radius: 6px; }
+                .montant-block { background: #0f172a; color: #ffffff; text-align: center; padding: 20px; border-radius: 6px; margin: 20px 0; }
+                .footer-text { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="logo">AGRICOBANK</div>
+                    <div class="badge">✓ DOCUMENT CERTIFIÉ</div>
+                </div>
+                <div class="section-title">RÉSEAU DE TRANSFERT INTERNATIONAL</div>
+                
+                <div class="info-row"><span>Date de l'opération</span> <b>${date}</b></div>
+                <div class="info-row"><span>Référence unique</span> <b>TR-AGB-713025</b></div>
+                <div class="info-row"><span>Statut réseau</span> <b style="color: #10b981;">Certifié & En cours d'acheminement</b></div>
 
-function retourTableauDeBord() { 
-    const t = traductions[langueActuelle]; 
-    alert(t.alertDl); location.reload(); 
+                <div class="flex-box">
+                    <div class="box">
+                        <div style="font-size: 10px; color: #94a3b8;">ÉMETTEUR</div>
+                        <div style="font-weight: bold;">Olivier Marcy</div>
+                    </div>
+                    <div class="box">
+                        <div style="font-size: 10px; color: #94a3b8;">BÉNÉFICIAIRE</div>
+                        <div style="font-weight: bold;">${beneficiaire}</div>
+                        <div style="font-size: 12px;">${iban}</div>
+                    </div>
+                </div>
+
+                <div class="montant-block">
+                    <div style="font-size: 12px; color: #94a3b8;">MONTANT NET TRANSFÉRÉ</div>
+                    <div style="font-size: 32px; font-weight: 800; color: #10b981;">${montant}</div>
+                </div>
+
+                <div class="footer-text">
+                    Ce document officiel est généré automatiquement par les serveurs cryptographiques sécurisés d'Agricole Bank. Il fait office de confirmation irréversible de l'ordre de transfert émis sous protocole SSL de niveau bancaire.
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+    
+    fenetreImpression.document.close();
+    
+    // Impression automatique pour PDF
+    setTimeout(() => {
+        fenetreImpression.print();
+        location.reload();
+    }, 500);
 }
-
 window.onload = function() { 
     initialiserComptesBancaires();
     changerLangue('fr'); 
